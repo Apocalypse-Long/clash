@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="100%" height="100%">
+  <defs>
+    <!-- 斜向色带 1：暗青到深蓝 -->
+    <linearGradient id="band1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b4d48" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#162c3d" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#111822" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 斜向色带 2：暗珊瑚橙到暗紫 -->
+    <linearGradient id="band2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#8a4328" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#4d2448" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#111822" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- 横向微调带：暗金与墨绿 -->
+    <linearGradient id="band3" x1="20%" y1="100%" x2="80%" y2="0%">
+      <stop offset="20%" stop-color="#1f3f33" stop-opacity="0.7"/>
+      <stop offset="80%" stop-color="#734b1e" stop-opacity="0.65"/>
+    </linearGradient>
+
+    <!-- 垂直平衡带：暗灰蓝底基 -->
+    <linearGradient id="baseGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#171e29"/>
+      <stop offset="100%" stop-color="#0f141d"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 沉稳渐变底版（非纯黑） -->
+  <rect width="1920" height="1080" fill="url(#baseGrad)"/>
+
+  <!-- 色彩条带叠加，无局部圆形光球 -->
+  <rect width="1920" height="1080" fill="url(#band1)" style="mix-blend-mode: screen;"/>
+  <rect width="1920" height="1080" fill="url(#band2)" style="mix-blend-mode: screen;"/>
+  <rect width="1920" height="1080" fill="url(#band3)" style="mix-blend-mode: soft-light;"/>
+</svg>
