@@ -1,0 +1,18 @@
+# OpenClash 订阅配置模板 (UCI 格式)
+# 位于路由器 /etc/config/openclash
+
+config config_subscribe
+	option enabled '1'
+	option name 'ApClash-主订阅'
+	option address '【请替换为您机场的订阅链接】'
+	option sub_convert '1'
+	option template '0'
+	option custom_template_url 'https://raw.githubusercontent.com/Apocalypse-Long/clash/main/apclash.ini'
+	option emoji 'true'
+	option udp 'true'
+	option skip_cert_verify 'false'
+	option sort 'false'
+	option node_type 'false'
+	option rule_provider 'false'
+	option sub_ua 'clash.meta'
+	option convert_address 'https://api.wcc.best/sub'

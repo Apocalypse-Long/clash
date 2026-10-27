@@ -1,0 +1,38 @@
+# ==============================================================================
+# 游戏平台与服务器规则集 (Gaming & Platforms)
+# ==============================================================================
+
+# --- Steam 平台与社区 ---
+DOMAIN-SUFFIX,steamcommunity.com
+DOMAIN-SUFFIX,steampowered.com
+DOMAIN-SUFFIX,steamstatic.com
+DOMAIN-SUFFIX,steam-chat.com
+DOMAIN-SUFFIX,steamcontent.com
+
+# --- Epic Games ---
+DOMAIN-SUFFIX,epicgames.com
+DOMAIN-SUFFIX,unrealengine.com
+
+# --- EA / Origin ---
+DOMAIN-SUFFIX,ea.com
+DOMAIN-SUFFIX,origin.com
+
+# --- Blizzard / 战网 ---
+DOMAIN-SUFFIX,battle.net
+DOMAIN-SUFFIX,blizzard.com
+
+# --- CS2 官方对局服务器 (修复掩码) ---
+IP-CIDR,162.254.192.0/20,no-resolve
+IP-CIDR,155.133.224.0/19,no-resolve
+IP-CIDR,1.165.84.0/24,no-resolve
+IP-CIDR,1.165.85.0/24,no-resolve
+IP-CIDR,1.165.90.0/24,no-resolve
+IP-CIDR,5.8.200.0/24,no-resolve
+IP-CIDR,5.9.123.0/24,no-resolve
+IP-CIDR,13.73.0.0/16,no-resolve
+IP-CIDR,13.73.1.0/24,no-resolve
+IP-CIDR,13.75.114.0/24,no-resolve
+IP-CIDR,13.126.76.0/24,no-resolve
+IP-CIDR,14.18.251.72/32,no-resolve
+IP-CIDR,18.214.26.0/24,no-resolve
+IP-CIDR,24.105.28.0/24,no-resolve

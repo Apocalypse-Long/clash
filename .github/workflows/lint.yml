@@ -1,0 +1,54 @@
+name: Lint and Validate Rules
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate Rule Files Syntax
+        run: |
+          python - << 'EOF'
+          import os, sys
+
+          rules_dir = 'rules'
+          valid_prefixes = (
+              'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD',
+              'IP-CIDR', 'IP-CIDR6', 'IP-ASN', 'GEOIP', 'GEOSITE',
+              'USER-AGENT', 'PROCESS-NAME', '#'
+          )
+
+          errors = []
+          for root, _, files in os.walk(rules_dir):
+              for file in files:
+                  if not file.endswith('.list'):
+                      continue
+                  filepath = os.path.join(root, file)
+                  with open(filepath, 'r', encoding='utf-8') as f:
+                      for idx, line in enumerate(f, start=1):
+                          line = line.strip()
+                          if not line:
+                              continue
+                          if not line.startswith(valid_prefixes):
+                              errors.append(f"{filepath}:{idx} Invalid rule line: {line}")
+                          if 'IP-CIDR' in line and '/2,' in line:
+                              errors.append(f"{filepath}:{idx} Dangerous mask /2 detected: {line}")
+
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print("All rules passed validation successfully!")
+          EOF
