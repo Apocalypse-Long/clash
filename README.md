@@ -51,7 +51,7 @@ flowchart TD
 | **✈️ APLIST国外** | `⚡ 港日新-自动` | 所有-自动、香港、日本、新加坡、美国、英国、手动 | 开发者镜像 (`docker.io`, `armbian`)、海外小众站点 |
 | **🤖 AI服务** | `🇺🇸 美国-自动` | 🇬🇧 英国、🇸🇬 新加坡、🇯🇵 日本、所有-自动、手动 | ChatGPT、Claude、Gemini、Grok、Perplexity、Cursor (避开不合规地区) |
 | **💳 跨境支付** | `DIRECT` | 🇬🇧 英国-自动、🇺🇸 美国-自动、🇸🇬 新加坡-自动、手动 | PayPal、Giffgaff、Stripe 防风控封号 |
-| **🎵 TikTok** | `🇺🇸 美国-自动` | 🇬🇧 英国、🇯🇵 日本、🇸🇬 新加坡、🇭🇰 香港、手动 | 规避区域检测，智能流媒体解锁 |
+| **🎵 TikTok** | `DIRECT` | 🇺🇸 美国-自动、🇬🇧 英国、🇯🇵 日本、🇸🇬 新加坡、🇭🇰 香港、手动 | 默认直连，可按需手动切换海外代理 |
 | **🔍 Google** | `⚡ 港日新-自动` | 香港、日本、新加坡、美国、所有-自动、手动 | Google 搜索、Play 商店、API 服务 |
 | **📺 YouTube** | `⚡ 港日新-自动` | 香港、日本、新加坡、美国、所有-自动、手动 | YouTube 4K 超高清低延迟视频流 |
 | **🐙 GitHub** | `⚡ 港日新-自动` | 香港、日本、新加坡、美国、所有-自动、手动 | Git 克隆、Releases 下载、Web 页面秒开 |
@@ -104,6 +104,7 @@ flowchart TD
 | :--- | :--- | :--- |
 | **旗舰完整版 (`apclash.ini`)** | `https://fastly.jsdelivr.net/gh/Apocalypse-Long/clash@main/apclash.ini` | `https://raw.githubusercontent.com/Apocalypse-Long/clash/main/apclash.ini` |
 | **极速轻量版 (`aplite.ini`)** | `https://fastly.jsdelivr.net/gh/Apocalypse-Long/clash@main/aplite.ini` | `https://raw.githubusercontent.com/Apocalypse-Long/clash/main/aplite.ini` |
+| **历史存档版 (oldclash.ini / oldclash)** | https://fastly.jsdelivr.net/gh/Apocalypse-Long/clash@main/oldclash.ini | https://raw.githubusercontent.com/Apocalypse-Long/clash/main/oldclash.ini |
 
 5. 转换服务选择公共后端（如 `https://api.wcc.best/sub` 或 `https://api.v1.mk/sub`）。
 6. 点击 **保存配置** 并 **更新配置** 即可！
