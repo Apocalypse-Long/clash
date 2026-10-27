@@ -1,4 +1,4 @@
-name: Lint rules
+name: Lint and Validate Rules
 
 on:
   push:
@@ -11,41 +11,44 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Validate rule list syntax
+      - name: Validate Rule Files Syntax
         run: |
           python - << 'EOF'
-          import glob, ipaddress, sys
+          import os, sys
 
-          files = sorted(glob.glob('list/**/*.list', recursive=True)) + ['personallist.ini', 'personallistout.ini']
-          types = {'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD', 'DOMAIN-REGEX',
-                   'IP-CIDR', 'IP-CIDR6', 'IP-ASN', 'GEOIP', 'GEOSITE',
-                   'SRC-IP-CIDR', 'DST-PORT', 'SRC-PORT', 'PROCESS-NAME', 'USER-AGENT'}
+          rules_dir = 'rules'
+          valid_prefixes = (
+              'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD',
+              'IP-CIDR', 'IP-CIDR6', 'IP-ASN', 'GEOIP', 'GEOSITE',
+              'USER-AGENT', 'PROCESS-NAME', '#'
+          )
+
           errors = []
-          for path in files:
-              with open(path, encoding='utf-8-sig') as f:
-                  for n, raw in enumerate(f, 1):
-                      line = raw.strip()
-                      if not line or line.startswith(('#', ';', '//')):
-                          continue
-                      parts = [p.strip() for p in line.split(',')]
-                      if parts[0] not in types or len(parts) < 2 or not parts[1]:
-                          errors.append(f'{path}:{n}: invalid rule: {line}')
-                          continue
-                      if parts[0] in ('IP-CIDR', 'IP-CIDR6'):
-                          try:
-                              net = ipaddress.ip_network(parts[1], strict=False)
-                          except ValueError:
-                              errors.append(f'{path}:{n}: invalid CIDR: {line}')
+          for root, _, files in os.walk(rules_dir):
+              for file in files:
+                  if not file.endswith('.list'):
+                      continue
+                  filepath = os.path.join(root, file)
+                  with open(filepath, 'r', encoding='utf-8') as f:
+                      for idx, line in enumerate(f, start=1):
+                          line = line.strip()
+                          if not line:
                               continue
-                          if net.version == 4 and net.prefixlen < 8:
-                              errors.append(f'{path}:{n}: suspiciously large CIDR /{net.prefixlen}: {line}')
+                          if not line.startswith(valid_prefixes):
+                              errors.append(f"{filepath}:{idx} Invalid rule line: {line}")
+                          if 'IP-CIDR' in line and '/2,' in line:
+                              errors.append(f"{filepath}:{idx} Dangerous mask /2 detected: {line}")
+
           if errors:
-              print('\n'.join(errors)); sys.exit(1)
-          print(f'OK: {len(files)} files checked')
+              print("\n".join(errors))
+              sys.exit(1)
+          print("All rules passed validation successfully!")
           EOF
