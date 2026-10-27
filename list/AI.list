@@ -1,12 +1,9 @@
-# 内容：OpenAi Bard anthropic
-# 域名关键字匹配
-# DOMAIN-KEYWORD,openai
-# DOMAIN-KEYWORD,anthropic
-# DOMAIN-KEYWORD,Claude
-# 域名后缀匹配
+# ==============================================================================
+# 综合 AI 服务规则集 (合并原 AI.list + AI2.list + Gemini.list 及现代新增 AI)
+# ==============================================================================
+
 DOMAIN,copilot.microsoft.com
 DOMAIN-SUFFIX,bing.com
-
 DOMAIN-SUFFIX,chatgpt.com
 DOMAIN-SUFFIX,auth0.com
 DOMAIN-SUFFIX,client-api.arkoselabs.com
@@ -34,12 +31,36 @@ DOMAIN-SUFFIX,bortzmeyer.org
 DOMAIN-SUFFIX,groq.com
 DOMAIN-SUFFIX,difyai.com
 DOMAIN-SUFFIX,genspark.ai
-
 DOMAIN-SUFFIX,grok.com
 DOMAIN-SUFFIX,x.com
 DOMAIN-SUFFIX,x.ai
-
 DOMAIN-SUFFIX,googleapis.com
 DOMAIN-SUFFIX,googleapis.cn
 DOMAIN-SUFFIX,gstatic.com
 DOMAIN-SUFFIX,signalr.net
+DOMAIN-SUFFIX,meta.ai
+DOMAIN-SUFFIX,metademolab.com
+DOMAIN-SUFFIX,perplexity.ai
+DOMAIN-SUFFIX,gemini-pa.googleapis.com
+DOMAIN-SUFFIX,robinfrontend-pa.googleapis.com
+DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com
+DOMAIN-SUFFIX,generativelanguage.googleapis.com
+DOMAIN-SUFFIX,aistudio.google.com
+DOMAIN-SUFFIX,aistudio-pa.clients6.google.com
+DOMAIN-SUFFIX,googleusercontent.com
+DOMAIN-SUFFIX,android.googleapis.com
+DOMAIN,ai.google.dev
+DOMAIN,alkalimakersuite-pa.clients6.google.com
+DOMAIN-SUFFIX,deepmind.com
+DOMAIN-SUFFIX,deepmind.google
+DOMAIN-SUFFIX,generativeai.google
+DOMAIN-SUFFIX,clau.de
+DOMAIN-SUFFIX,claude.com
+DOMAIN-SUFFIX,claudemcpclient.com
+DOMAIN-SUFFIX,claudeusercontent.com
+DOMAIN-SUFFIX,cursor.com
+DOMAIN-SUFFIX,cursor.sh
+DOMAIN-SUFFIX,poe.com
+DOMAIN-SUFFIX,coze.com
+DOMAIN-SUFFIX,mistral.ai
+DOMAIN-SUFFIX,deepseek.com
