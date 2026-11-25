@@ -1,13 +1,27 @@
+# ==============================================================================
+# 个人国内直连与防回环白名单 (最高优先级 -> 🇨🇳 APLIST国内)
+# ==============================================================================
+
+# 1. 个人基础设施与自建域名 (与 BPI-R4 MosDNS direct-list 对齐，防订阅/CDN 套娃)
+DOMAIN-SUFFIX,aplong.space
+DOMAIN-SUFFIX,ccwu.cc
+DOMAIN-SUFFIX,090227.xyz
+
+# 2. PT 站点、航司办公与常用硬件驱动直连
 DOMAIN-SUFFIX,m-team.cc
-DOMAIN-SUFFIX,ceair.com
 DOMAIN-SUFFIX,libtorrent.org
-DOMAIN-SUFFIX,ipw.cn
-GEOSITE,category-games@cn
-DOMAIN-SUFFIX,steamserver.net
-DOMAIN-SUFFIX,cm.steampowered.com
-IP-ASN,3259
-#10-13为steam下载服务器
+DOMAIN-SUFFIX,ceair.com
 DOMAIN-SUFFIX,autodesk.com
 DOMAIN-SUFFIX,intel.com
 DOMAIN-SUFFIX,dellcdn.com
-DOMAIN-SUFFIX,aplong.space
+DOMAIN-SUFFIX,ipw.cn
+
+# 3. Steam 游戏下载国内 CDN 直连满速 (商店/社区仍走 🎮 Steam 香港代理)
+DOMAIN-SUFFIX,steamcontent.com
+DOMAIN-SUFFIX,steamserver.net
+DOMAIN-SUFFIX,cm.steampowered.com
+DOMAIN-SUFFIX,dl.steam.clngaa.com
+DOMAIN-SUFFIX,st.dl.eccdnx.com
+DOMAIN-SUFFIX,st.dl.bscstorage.net
+DOMAIN-SUFFIX,steampipe.steamcontent.tnkjmec.com
+DOMAIN-SUFFIX,steamchina.com

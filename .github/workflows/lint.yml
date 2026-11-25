@@ -19,36 +19,188 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Validate Rule Files Syntax
+      - name: Validate Rule Files and INI Profiles
         run: |
           python - << 'EOF'
-          import os, sys
+          import ipaddress
+          import os
+          import re
+          import sys
 
-          rules_dir = 'rules'
-          valid_prefixes = (
+          VALID_TYPES = {
               'DOMAIN', 'DOMAIN-SUFFIX', 'DOMAIN-KEYWORD',
-              'IP-CIDR', 'IP-CIDR6', 'IP-ASN', 'GEOIP', 'GEOSITE',
-              'USER-AGENT', 'PROCESS-NAME', '#'
-          )
+              'IP-CIDR', 'IP-CIDR6', 'IP-ASN',
+              'PROCESS-NAME', 'USER-AGENT'
+          }
+          IP_TYPES = {'IP-CIDR', 'IP-CIDR6', 'IP-ASN'}
+          BUILTIN_PROXIES = {'DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'}
 
           errors = []
-          for root, _, files in os.walk(rules_dir):
-              for file in files:
+          file_targets = {}
+
+          # 1. Validate rules/*.list
+          for root, _, files in os.walk('rules'):
+              for file in sorted(files):
                   if not file.endswith('.list'):
                       continue
-                  filepath = os.path.join(root, file)
+                  filepath = os.path.join(root, file).replace('\\', '/')
+                  seen_lines = set()
+                  targets = set()
                   with open(filepath, 'r', encoding='utf-8') as f:
-                      for idx, line in enumerate(f, start=1):
-                          line = line.strip()
-                          if not line:
+                      for idx, raw in enumerate(f, start=1):
+                          line = raw.strip()
+                          if not line or line.startswith('#'):
                               continue
-                          if not line.startswith(valid_prefixes):
-                              errors.append(f"{filepath}:{idx} Invalid rule line: {line}")
-                          if 'IP-CIDR' in line and '/2,' in line:
-                              errors.append(f"{filepath}:{idx} Dangerous mask /2 detected: {line}")
+                          parts = [p.strip() for p in line.split(',')]
+                          rule_type = parts[0]
+                          if rule_type not in VALID_TYPES or len(parts) < 2 or not parts[1]:
+                              errors.append(f"{filepath}:{idx} Invalid rule syntax: {line}")
+                              continue
+
+                          if line in seen_lines:
+                              errors.append(f"{filepath}:{idx} Duplicate rule line: {line}")
+                          seen_lines.add(line)
+
+                          target = parts[1]
+                          targets.add((rule_type, target.lower()))
+
+                          if rule_type in ('IP-CIDR', 'IP-CIDR6'):
+                              try:
+                                  net = ipaddress.ip_network(target, strict=True)
+                              except ValueError as exc:
+                                  errors.append(f"{filepath}:{idx} Invalid CIDR ({exc}): {line}")
+                              else:
+                                  if net.version == 4 and net.prefixlen < 8:
+                                      errors.append(f"{filepath}:{idx} Dangerous IPv4 mask /{net.prefixlen}: {line}")
+                                  if net.version == 6 and net.prefixlen < 32:
+                                      errors.append(f"{filepath}:{idx} Dangerous IPv6 mask /{net.prefixlen}: {line}")
+
+                          if rule_type in IP_TYPES and 'no-resolve' not in parts[2:]:
+                              errors.append(f"{filepath}:{idx} Missing 'no-resolve' on IP rule: {line}")
+
+                  file_targets[os.path.basename(filepath)] = targets
+
+          # Cross-file conflict check: custom-direct.list vs proxy lists
+          direct_targets = file_targets.get('custom-direct.list', set())
+          for other_name in ('custom-proxy.list', 'ai.list', 'gaming.list', 'crypto.list', 'check.list'):
+              overlap = direct_targets & file_targets.get(other_name, set())
+              for rtype, rtarget in sorted(overlap):
+                  errors.append(f"Conflict between custom-direct.list and {other_name}: {rtype},{rtarget}")
+
+          # 2. Validate INI profile sync & integrity
+          sync_pairs = [
+              ('apclash.ini', 'profiles/apclash-full.ini'),
+              ('aplite.ini', 'profiles/apclash-lite.ini'),
+          ]
+          for root_ini, prof_ini in sync_pairs:
+              if not os.path.exists(root_ini) or not os.path.exists(prof_ini):
+                  errors.append(f"Missing profile pair: {root_ini} / {prof_ini}")
+                  continue
+              with open(root_ini, 'rb') as f1, open(prof_ini, 'rb') as f2:
+                  if f1.read() != f2.read():
+                      errors.append(f"Profile drift detected: {root_ini} != {prof_ini}")
+
+          apwall_nodes = [
+              '🇭🇰 hk1 VLESS-Reality-tls',
+              '🇭🇰 hk2 VLESS-Reality-tls',
+              '🇭🇰 hk2-CDN-优选',
+              '🇭🇰 hk2-CDN-直连',
+              '🇯🇵 jp1 VLESS-Reality-tls',
+              '🇺🇸 us1 VLESS-Reality-tls',
+              '🇺🇸 dr-us VLESS-Reality-tls',
+              '🇺🇸 us2 VLESS-Reality-tls',
+              '🇬🇧 uk1 VLESS-Reality-tls',
+          ]
+          false_positive_samples = [
+              '🇦🇺 AUSTRALIA-PLUS',
+              '🇷🇺 RUSSIA-NODE-01',
+              '🇯🇵 FUKUOKA-01',
+              '完美专线',
+              '精英专线',
+              '剩余流量：100GB',
+          ]
+
+          for ini_path in ('apclash.ini', 'aplite.ini'):
+              with open(ini_path, 'r', encoding='utf-8') as f:
+                  lines = [l.strip() for l in f]
+
+              rulesets = []
+              groups = {}
+              regexes = {}
+
+              for idx, line in enumerate(lines, start=1):
+                  if not line or line.startswith(';') or line.startswith('#') or line == '[custom]':
+                      continue
+                  if line.startswith('ruleset='):
+                      body = line[len('ruleset='):]
+                      grp, rest = body.split(',', 1)
+                      rulesets.append((idx, grp.strip(), rest.strip()))
+                  elif line.startswith('custom_proxy_group='):
+                      body = line[len('custom_proxy_group='):]
+                      parts = body.split('`')
+                      gname = parts[0].strip()
+                      gtype = parts[1].strip()
+                      groups[gname] = (idx, gtype, parts[2:])
+                      if gtype == 'select':
+                          # Check if regex filter exists instead of [] references
+                          non_refs = [p for p in parts[2:] if not p.startswith('[]')]
+                          if non_refs:
+                              regexes[gname] = non_refs[0]
+                      elif gtype == 'url-test' and len(parts) >= 3:
+                          regexes[gname] = parts[2]
+
+              for idx, grp, _ in rulesets:
+                  if grp not in groups:
+                      errors.append(f"{ini_path}:{idx} ruleset references undefined group: {grp}")
+
+              for gname, (idx, gtype, args) in groups.items():
+                  for item in args:
+                      if item.startswith('[]'):
+                          ref = item[2:]
+                          if ref not in BUILTIN_PROXIES and ref not in groups:
+                              errors.append(f"{ini_path}:{idx} group '{gname}' references undefined group: {ref}")
+
+              compiled = {}
+              for gname, pattern in regexes.items():
+                  try:
+                      # Test wrapped form as well to ensure Python 3.11+ safety (no misplaced global flags)
+                      re.compile(f"({pattern})")
+                      compiled[gname] = re.compile(pattern)
+                  except re.error as exc:
+                      errors.append(f"{ini_path} group '{gname}' invalid regex ({exc}): {pattern}")
+
+              # Unit assertions against ApWall node names and false-positive edge cases
+              expected_matches = {
+                  '🇭🇰 香港-自动': ['🇭🇰 hk1 VLESS-Reality-tls', '🇭🇰 hk2 VLESS-Reality-tls', '🇭🇰 hk2-CDN-优选', '🇭🇰 hk2-CDN-直连'],
+                  '🇯🇵 日本-自动': ['🇯🇵 jp1 VLESS-Reality-tls', '🇯🇵 FUKUOKA-01'],
+                  '🇺🇸 美国-自动': ['🇺🇸 us1 VLESS-Reality-tls', '🇺🇸 dr-us VLESS-Reality-tls', '🇺🇸 us2 VLESS-Reality-tls'],
+                  '🇬🇧 英国-自动': ['🇬🇧 uk1 VLESS-Reality-tls'],
+              }
+              for gname, expected in expected_matches.items():
+                  pat = compiled.get(gname)
+                  if not pat:
+                      errors.append(f"{ini_path} missing expected group regex: {gname}")
+                      continue
+                  for node in apwall_nodes:
+                      matched = bool(pat.search(node))
+                      should_match = node in expected
+                      if matched != should_match:
+                          errors.append(f"{ini_path} '{gname}' match={matched} (expected {should_match}) for node '{node}'")
+                  for sample in false_positive_samples:
+                      matched = bool(pat.search(sample))
+                      should_match = sample in expected
+                      if matched != should_match:
+                          errors.append(f"{ini_path} '{gname}' false match={matched} (expected {should_match}) for sample '{sample}'")
+
+              all_auto = compiled.get('⚡ 所有-自动')
+              if all_auto and all_auto.search('剩余流量：100GB'):
+                  errors.append(f"{ini_path} '⚡ 所有-自动' matched pseudo-node '剩余流量：100GB'")
+              all_manual = compiled.get('🖐️ 所有-手动')
+              if all_manual and all_manual.search('剩余流量：100GB'):
+                  errors.append(f"{ini_path} '🖐️ 所有-手动' matched pseudo-node '剩余流量：100GB'")
 
           if errors:
               print("\n".join(errors))
               sys.exit(1)
-          print("All rules passed validation successfully!")
+          print("All rules and profiles passed validation successfully!")
           EOF

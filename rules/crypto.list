@@ -2,15 +2,23 @@
 # 加密货币交易与钱包服务规则集 (Crypto)
 # ==============================================================================
 DOMAIN-SUFFIX,binance.com
+DOMAIN-SUFFIX,binance.vision
 DOMAIN-SUFFIX,bnapp.cc
 DOMAIN-SUFFIX,binance.cloud
 DOMAIN-SUFFIX,okx.com
 DOMAIN-SUFFIX,okex.com
 DOMAIN-SUFFIX,bybit.com
+DOMAIN-SUFFIX,bitget.com
 DOMAIN-SUFFIX,coinbase.com
+DOMAIN-SUFFIX,kraken.com
+DOMAIN-SUFFIX,coinglass.com
 DOMAIN-SUFFIX,coincola.com
 DOMAIN-SUFFIX,coincolacdn.com
 DOMAIN-SUFFIX,colaotc.com
 DOMAIN-SUFFIX,tronlink.org
 DOMAIN-SUFFIX,metamask.io
+DOMAIN-SUFFIX,phantom.app
 DOMAIN-SUFFIX,polymarket.com
+DOMAIN-SUFFIX,tradingview.com
+DOMAIN-SUFFIX,coingecko.com
+DOMAIN-SUFFIX,coinmarketcap.com
