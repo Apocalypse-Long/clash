@@ -35,7 +35,12 @@ DOMAIN-SUFFIX,plexmediaserver.com
 DOMAIN-SUFFIX,shuzijumin.com
 DOMAIN-SUFFIX,bulianglin.com
 
-# 4. 海外加密公共 DNS (DoH / DoT)
+# 4. 民航航班追踪与航图资源 (Flightradar24)
+DOMAIN-SUFFIX,flightradar24.com
+DOMAIN-SUFFIX,fr24.com
+DOMAIN-SUFFIX,jetphotos.com
+
+# 5. 海外加密公共 DNS (DoH / DoT)
 DOMAIN-SUFFIX,dns.google
 DOMAIN-SUFFIX,cloudflare-dns.com
 DOMAIN-SUFFIX,1dot1dot1dot1.cloudflare-dns.com
